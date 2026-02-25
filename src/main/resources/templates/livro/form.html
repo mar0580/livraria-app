@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout.html}">
+<head>
+    <title th:text="${livro.id != null ? 'Editar Livro' : 'Novo Livro'}">Livro</title>
+</head>
+<body>
+<div th:fragment="content">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <!-- Cabeçalho -->
+            <div class="mb-4">
+                <h1 class="page-title" th:text="${livro.id != null ? 'Editar Livro' : 'Novo Livro'}"></h1>
+                <p class="text-muted" th:text="${livro.id != null ? 'Atualize os dados do livro' : 'Preencha os dados para cadastrar um novo livro'}"></p>
+            </div>
+
+            <!-- Alerta de Erro (se houver) -->
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                <strong>Erro:</strong> <span th:text="${errorMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <!-- Formulário -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <form th:action="@{/livros}" th:object="${livro}" method="post">
+                        <!-- ID (hidden) -->
+                        <input type="hidden" th:field="*{id}"/>
+
+                        <!-- Título -->
+                        <div class="mb-3">
+                            <label class="form-label fw-500">Título <span class="text-danger">*</span></label>
+                            <input type="text" th:field="*{titulo}" class="form-control" 
+                                   th:classappend="${#fields.hasErrors('titulo') ? 'is-invalid' : ''}"
+                                   placeholder="Digite o título do livro" maxlength="40"/>
+                            <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('titulo') }"
+                                 th:errors="*{titulo}"></div>
+                        </div>
+
+                        <!-- Editora -->
+                        <div class="mb-3">
+                            <label class="form-label fw-500">Editora <span class="text-danger">*</span></label>
+                            <input type="text" th:field="*{editora}" class="form-control"
+                                   th:classappend="${#fields.hasErrors('editora') ? 'is-invalid' : ''}"
+                                   placeholder="Digite o nome da editora" maxlength="40"/>
+                            <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('editora') }"
+                                 th:errors="*{editora}"></div>
+                        </div>
+
+                        <!-- Ano, Edição e Valor -->
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-500">Ano de Publicação <span class="text-danger">*</span></label>
+                                <input type="text" th:field="*{anoPublicacao}" class="form-control"
+                                       th:classappend="${#fields.hasErrors('anoPublicacao') ? 'is-invalid' : ''}"
+                                       placeholder="YYYY" maxlength="4"/>
+                                <small class="text-muted d-block mt-1">Ex: 2025</small>
+                                <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('anoPublicacao') }"
+                                     th:errors="*{anoPublicacao}"></div>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-500">Edição <span class="text-danger">*</span></label>
+                                <input type="number" th:field="*{edicao}" class="form-control"
+                                       th:classappend="${#fields.hasErrors('edicao') ? 'is-invalid' : ''}"
+                                       placeholder="1" min="1"/>
+                                <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('edicao') }"
+                                     th:errors="*{edicao}"></div>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-500">Valor (R$) <span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" th:field="*{valor}" class="form-control"
+                                       th:classappend="${#fields.hasErrors('valor') ? 'is-invalid' : ''}"
+                                       placeholder="0.00" min="0.01"/>
+                                <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('valor') }"
+                                     th:errors="*{valor}"></div>
+                            </div>
+                        </div>
+
+                        <!-- Autores -->
+                        <div class="mb-3">
+                            <label class="form-label fw-500">Autores</label>
+                            <select multiple class="form-select" name="autoresSelecionados" size="5">
+                                <option th:each="autor : ${autores}"
+                                        th:value="${autor.id}"
+                                        th:text="${autor.nome}"
+                                        th:selected="${livro.autores.contains(autor)}"></option>
+                            </select>
+                            <small class="text-muted d-block mt-1">
+                                <i class="bi bi-info-circle"></i> Segure Ctrl (ou Cmd no Mac) para selecionar múltiplos autores
+                            </small>
+                        </div>
+
+                        <!-- Assuntos -->
+                        <div class="mb-4">
+                            <label class="form-label fw-500">Assuntos</label>
+                            <select multiple class="form-select" name="assuntosSelecionados" size="5">
+                                <option th:each="ass : ${assuntos}"
+                                        th:value="${ass.id}"
+                                        th:text="${ass.descricao}"
+                                        th:selected="${livro.assuntos.contains(ass)}"></option>
+                            </select>
+                            <small class="text-muted d-block mt-1">
+                                <i class="bi bi-info-circle"></i> Segure Ctrl (ou Cmd no Mac) para selecionar múltiplos assuntos
+                            </small>
+                        </div>
+
+                        <!-- Botões -->
+                        <div class="d-flex gap-2 justify-content-between">
+                            <div>
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <span th:text="${livro.id != null ? '✏️ Atualizar' : '➕ Cadastrar'}"></span>
+                                </button>
+                                <a th:href="@{/livros}" class="btn btn-secondary btn-lg">
+                                    ✖️ Cancelar
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <style>
+        .fw-500 {
+            font-weight: 500;
+        }
+
+        .text-danger {
+            color: #dc3545;
+        }
+
+        .form-control, .form-select {
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+        .form-control.is-invalid, .form-select.is-invalid {
+            border-color: #dc3545;
+        }
+
+        .invalid-feedback {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .btn-lg {
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+        }
+    </style>
+</div>
+</body>
+</html>

@@ -1,0 +1,9 @@
+<div th:replace="~{../layout :: conteudo}">
+    <div>
+        <h2>Erro no sistema</h2>
+        <p th:text="${errorMessage} ?: 'Ocorreu um erro inesperado.'">
+            Ocorreu um erro inesperado.
+        </p>
+        <a th:href="@{/}" class="btn btn-primary mt-3">Voltar para a página inicial</a>
+    </div>
+</div>

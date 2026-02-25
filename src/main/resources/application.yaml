@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: Projeto para cadastro de livros
+
+  datasource:
+    url: jdbc:postgresql://rasp.local:5432/livraria?ssl=true&sslmode=require
+    username: postgres
+    password: root
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+  thymeleaf:
+    cache: false
+    enabled: true
+
+server:
+  error:
+    include-message: always
+    include-stacktrace: never
+    include-exception: false
+    whitelabel:
+      enabled: false
+
+logging:
+  level:
+    root: INFO
+    com.livraria: DEBUG
+    org.springframework.web: DEBUG
+

@@ -1,0 +1,31 @@
+<div th:replace="~{../layout :: conteudo}">
+    <div>
+        <h2>Relatório - Livros por Autor</h2>
+        <p class="text-muted">Dados obtidos da view <strong>vw_relatorio_livros_por_autor</strong></p>
+
+        <table class="table table-sm table-bordered">
+            <thead class="table-light">
+            <tr>
+                <th>Autor</th>
+                <th>Livro</th>
+                <th>Editora</th>
+                <th>Ano</th>
+                <th>Edição</th>
+                <th>Valor (R$)</th>
+                <th>Assuntos</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="reg : ${registros}">
+                <td th:text="${reg.autorNome}"></td>
+                <td th:text="${reg.livroTitulo}"></td>
+                <td th:text="${reg.livroEditora}"></td>
+                <td th:text="${reg.livroAnoPublicacao}"></td>
+                <td th:text="${reg.livroEdicao}"></td>
+                <td th:text="${#numbers.formatDecimal(reg.livroValor, 1, 'COMMA', 2, 'POINT')}"></td>
+                <td th:text="${reg.assuntos}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
