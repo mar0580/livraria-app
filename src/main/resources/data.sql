@@ -26,7 +26,7 @@ SELECT
     l.edicao AS livro_edicao,
     l.ano_publicacao AS livro_ano_publicacao,
     l.valor AS livro_valor,
-    STRING_AGG(DISTINCT ass.descricao, ', ' ORDER BY ass.descricao) AS assuntos
+    COALESCE(STRING_AGG(DISTINCT ass.descricao, ', ' ORDER BY ass.descricao), '') AS assuntos
 FROM livro l
 INNER JOIN livro_autor la ON l.id = la.livro_id
 INNER JOIN autor a ON la.autor_id = a.id
