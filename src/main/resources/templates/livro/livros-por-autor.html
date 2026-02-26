@@ -5,10 +5,17 @@
 </head>
 <body>
 <div th:fragment="content">
-    <div>
-        <h2>Relatório - Livros por Autor</h2>
-        <p class="text-muted">Dados obtidos da view <strong>vw_relatorio_livros_por_autor</strong></p>
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title mb-2">Relatório - Livros por Autor</h1>
+            <p class="text-muted mb-0">Dados obtidos da view <strong>vw_relatorio_livros_por_autor</strong></p>
+        </div>
+        <a class="btn btn-primary btn-lg" th:href="@{/relatorios/livros-por-autor/pdf}" target="_blank">
+            <i class="bi bi-file-pdf"></i> Baixar PDF
+        </a>
+    </div>
 
+    <div class="table-responsive">
         <table class="table table-sm table-bordered">
             <thead class="table-light">
             <tr>
