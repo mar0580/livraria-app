@@ -1,4 +1,4 @@
-<div th:replace="~{../layout :: conteudo}">
+<div th:replace="~{../layout :: content}">
     <div>
         <h2>Relatório - Livros por Autor</h2>
         <p class="text-muted">Dados obtidos da view <strong>vw_relatorio_livros_por_autor</strong></p>
@@ -22,7 +22,7 @@
                 <td th:text="${reg.livroEditora}"></td>
                 <td th:text="${reg.livroAnoPublicacao}"></td>
                 <td th:text="${reg.livroEdicao}"></td>
-                <td th:text="${#numbers.formatDecimal(reg.livroValor, 1, 'COMMA', 2, 'POINT')}"></td>
+                <td th:text="${#numbers.formatDecimal(reg.livroValor, 1, 'POINT', 2, 'COMMA')}"></td>
                 <td th:text="${reg.assuntos}"></td>
             </tr>
             </tbody>

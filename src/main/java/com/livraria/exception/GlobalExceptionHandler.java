@@ -27,8 +27,14 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String handleDataIntegrity(DataIntegrityViolationException ex, Model model) {
         logger.error("Erro de integridade de dados", ex);
-        model.addAttribute("errorMessage",
-                "Operação não permitida. Verifique se há vínculos com outros registros.");
+        String mensagem = "Operação não permitida. Verifique se há vínculos com outros registros.";
+        // detecta FK para tabela de junção livro_autor e oferece explicação mais amigável
+        Throwable root = ex.getRootCause();
+        if (root != null && root.getMessage() != null && root.getMessage().contains("livro_autor")) {
+            mensagem = "Não é possível excluir o autor porque existem livros vinculados a ele. " +
+                       "Desvincule ou exclua os registros relacionados antes.";
+        }
+        model.addAttribute("errorMessage", mensagem);
         model.addAttribute("status", 400);
         return "error/generic";
     }
