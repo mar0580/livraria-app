@@ -1,7 +1,8 @@
 package com.livraria.service.impl;
 
-import com.livraria.entity.RelatorioLivrosPorAutor;
+import com.livraria.dto.RelatorioPdfDto;
 import com.livraria.repository.RelatorioLivrosPorAutorRepository;
+import com.livraria.repository.projection.RelatorioLivrosPorAutorProjection;
 import com.livraria.service.RelatorioService;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperFillManager;
@@ -21,6 +22,8 @@ import javax.sql.DataSource;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.sql.Connection;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 
@@ -41,8 +44,8 @@ public class RelatorioServiceImpl implements RelatorioService {
     }
 
     @Override
-    public List<RelatorioLivrosPorAutor> gerarRelatorio() {
-        return relatorioRepo.findAll();
+    public List<RelatorioLivrosPorAutorProjection> gerarRelatorio() {
+        return relatorioRepo.findAllProjections();
     }
 
     @Override
@@ -52,30 +55,28 @@ public class RelatorioServiceImpl implements RelatorioService {
         try {
             logger.info("Iniciando geração de PDF do relatório...");
             
-            // Carregar o arquivo .jrxml
+            // Carrega o arquivo .jrxml
             Resource jrxmlResource = resourceLoader.getResource("classpath:reports/livros_por_autor.jrxml");
             InputStream jrxmlInputStream = jrxmlResource.getInputStream();
-            
-            logger.info("Template JasperReports carregado: {}", jrxmlResource.getFilename());
-            
-            // Compilar o relatório
+
+            // Compila o relatório
             JasperReport jasperReport = JasperCompileManager.compileReport(jrxmlInputStream);
             logger.info("Relatório compilado com sucesso");
             
-            // Obter conexão com banco de dados
+            // Obtém conexão com banco de dados
             Connection connection = dataSource.getConnection();
             logger.info("Conexão com banco de dados estabelecida");
             
             try {
-                // Preencher o relatório diretamente da conexão JDBC
+                // Preenche o relatório diretamente da conexão JDBC
                 JasperPrint jasperPrint = JasperFillManager.fillReport(
                         jasperReport, 
-                        new HashMap<String, Object>(), 
+                        new HashMap<>(),
                         connection
                 );
                 logger.info("Relatório preenchido com sucesso. Páginas: {}", jasperPrint.getPages().size());
                 
-                // Exportar para PDF
+                // Exporta para PDF
                 JRPdfExporter exporter = new JRPdfExporter();
                 exporter.setExporterInput(new SimpleExporterInput(jasperPrint));
                 exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(pdfOutputStream));
@@ -96,6 +97,34 @@ public class RelatorioServiceImpl implements RelatorioService {
     public InputStream gerarRelatorioInputStream() throws Exception {
         byte[] pdfBytes = gerarRelatorioPDF();
         return new java.io.ByteArrayInputStream(pdfBytes);
+    }
+
+    @Override
+    public RelatorioPdfDto gerarRelatorioPdfCompleto() {
+        try {
+            logger.info("Iniciando requisição de geração de relatório PDF completo");
+            
+            byte[] pdfBytes = gerarRelatorioPDF();
+            
+            if (pdfBytes == null || pdfBytes.length == 0) {
+                logger.error("PDF gerado sem conteúdo");
+                throw new IllegalStateException("Erro ao gerar PDF: conteúdo vazio ou nulo");
+            }
+            
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+            String filename = "relatorio_livros_por_autor_" + timestamp + ".pdf";
+            
+            logger.info("PDF gerado com sucesso. Tamanho: {} bytes. Filename: {}", pdfBytes.length, filename);
+            
+            return RelatorioPdfDto.builder()
+                    .conteudo(pdfBytes)
+                    .nomeArquivo(filename)
+                    .tamanho(pdfBytes.length)
+                    .build();
+        } catch (Exception e) {
+            logger.error("Erro ao gerar relatório PDF completo: {}", e.getMessage(), e);
+            throw new RuntimeException("Erro ao gerar relatório PDF: " + e.getMessage(), e);
+        }
     }
 }
 

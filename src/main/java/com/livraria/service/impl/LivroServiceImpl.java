@@ -1,24 +1,28 @@
 package com.livraria.service.impl;
 
-import com.livraria.entity.Assunto;
-import com.livraria.entity.Autor;
 import com.livraria.entity.Livro;
 import com.livraria.repository.AssuntoRepository;
 import com.livraria.repository.AutorRepository;
 import com.livraria.repository.LivroRepository;
 import com.livraria.service.LivroService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class LivroServiceImpl implements LivroService {
+
+    private static final Logger logger = LoggerFactory.getLogger(LivroServiceImpl.class);
 
     private final LivroRepository livroRepository;
     private final AutorRepository autorRepository;
@@ -40,29 +44,19 @@ public class LivroServiceImpl implements LivroService {
     @Override
     @Transactional
     public Livro salvar(Livro livro, Set<Integer> idsAutores, Set<Integer> idsAssuntos) {
-        // Buscar e associar autores
-        if (idsAutores != null && !idsAutores.isEmpty()) {
-            Set<Autor> autores = idsAutores.stream()
-                    .map(id -> autorRepository.findById(id)
-                            .orElseThrow(() -> new IllegalArgumentException("Autor não encontrado com ID: " + id)))
-                    .collect(Collectors.toSet());
-            livro.setAutores(autores);
-        } else {
-            livro.setAutores(new HashSet<>());
+        if (livro == null) {
+            throw new IllegalArgumentException("Livro não pode ser nulo");
         }
 
-        // Buscar e associar assuntos
-        if (idsAssuntos != null && !idsAssuntos.isEmpty()) {
-            Set<Assunto> assuntos = idsAssuntos.stream()
-                    .map(id -> assuntoRepository.findById(id)
-                            .orElseThrow(() -> new IllegalArgumentException("Assunto não encontrado com ID: " + id)))
-                    .collect(Collectors.toSet());
-            livro.setAssuntos(assuntos);
-        } else {
-            livro.setAssuntos(new HashSet<>());
-        }
+        Set<Integer> autoresIds = normalizarIds(idsAutores, "autores");
+        Set<Integer> assuntosIds = normalizarIds(idsAssuntos, "assuntos");
 
-        return livroRepository.save(livro);
+        livro.setAutores(resolverEntidades(autoresIds, autorRepository::findById, "Autor"));
+        livro.setAssuntos(resolverEntidades(assuntosIds, assuntoRepository::findById, "Assunto"));
+
+        Livro salvo = livroRepository.save(livro);
+        logger.info("Livro salvo com sucesso: {}", salvo.getTitulo());
+        return salvo;
     }
 
     @Override
@@ -72,5 +66,30 @@ public class LivroServiceImpl implements LivroService {
             throw new IllegalArgumentException("Livro não encontrado com ID: " + id);
         }
         livroRepository.deleteById(id);
+    }
+
+    /**
+     * Método genérico que resolve uma coleção de IDs para suas respectivas entidades.
+     * Reduz duplicação de código entre autores e assuntos.
+     */
+    private <E> Set<E> resolverEntidades(Set<Integer> ids,
+                                         Function<Integer, Optional<E>> buscador,
+                                         String nomeTipo) {
+        if (ids == null || ids.isEmpty()) {
+            return new HashSet<>();
+        }
+        return ids.stream()
+                .map(id -> buscador.apply(id)
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                nomeTipo + " não encontrado com ID: " + id)))
+                .collect(Collectors.toSet());
+    }
+
+    private Set<Integer> normalizarIds(Set<Integer> ids, String nomeCampo) {
+        if (ids == null || ids.isEmpty()) {
+            logger.debug("IDs de {} não informados. Usando conjunto vazio.", nomeCampo);
+            return new HashSet<>();
+        }
+        return ids;
     }
 }

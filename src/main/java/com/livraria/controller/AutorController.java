@@ -1,9 +1,8 @@
 package com.livraria.controller;
 
 import com.livraria.entity.Autor;
-import com.livraria.repository.AutorRepository;
+import com.livraria.service.AutorService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -11,18 +10,17 @@ import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/autores")
-
 public class AutorController {
-    @Autowired
-    private final AutorRepository autorRepository;
 
-    public AutorController(AutorRepository autorRepository) {
-        this.autorRepository = autorRepository;
+    private final AutorService autorService;
+
+    public AutorController(AutorService autorService) {
+        this.autorService = autorService;
     }
 
     @GetMapping
     public String listar(Model model) {
-        model.addAttribute("autores", autorRepository.findAll());
+        model.addAttribute("autores", autorService.listarTodos());
         return "autor/lista";
     }
 
@@ -36,21 +34,20 @@ public class AutorController {
         if (result.hasErrors()) {
             return "autor/form";
         }
-        autorRepository.save(autor);
+        autorService.salvar(autor);
         return "redirect:/autores";
     }
 
     @GetMapping("/{id}/editar")
     public String editar(@PathVariable Integer id, Model model) {
-        Autor autor = autorRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Autor inválido: " + id));
+        Autor autor = autorService.buscarPorId(id);
         model.addAttribute("autor", autor);
         return "autor/form";
     }
 
     @PostMapping("/{id}/excluir")
     public String excluir(@PathVariable Integer id) {
-        autorRepository.deleteById(id);
+        autorService.excluir(id);
         return "redirect:/autores";
     }
 }
