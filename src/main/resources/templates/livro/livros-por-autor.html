@@ -1,4 +1,10 @@
-<div th:replace="~{../layout :: content}">
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout.html}">
+<head>
+    <title>Relatório - Livros por Autor</title>
+</head>
+<body>
+<div th:fragment="content">
     <div>
         <h2>Relatório - Livros por Autor</h2>
         <p class="text-muted">Dados obtidos da view <strong>vw_relatorio_livros_por_autor</strong></p>
@@ -29,3 +35,5 @@
         </table>
     </div>
 </div>
+</body>
+</html>
