@@ -133,9 +133,8 @@
         // Formatação de valor em tempo real (visível) e normalização para envio
         document.addEventListener('DOMContentLoaded', function() {
             const valorDisplay = document.getElementById('valorDisplay');
-            const valorHidden = document.getElementById('valor'); // bound to *{valor}
+            const valorHidden = document.getElementById('valor');
 
-            // Initialize display input from hidden bound value (if any)
             if (valorHidden && valorHidden.value) {
                 const n = Number(valorHidden.value);
                 if (!isNaN(n)) {
@@ -148,9 +147,7 @@
 
             if (valorDisplay) {
                 valorDisplay.addEventListener('input', function(e) {
-                    // Remove all non-digits
                     let digits = e.target.value.replace(/\D/g, '');
-
                     if (digits) {
                         let num = (parseInt(digits, 10) / 100);
                         e.target.value = num.toLocaleString('pt-BR', {
@@ -162,17 +159,13 @@
                     }
                 });
 
-                // On form submit, normalize display value into hidden bound input
                 const form = valorDisplay.closest('form');
                 if (form && valorHidden) {
                     form.addEventListener('submit', function() {
                         const displayVal = valorDisplay.value;
                         if (displayVal) {
-                            // Remove thousand separators (dots) and convert comma to dot
-                            // Set normalized value so Spring can parse to BigDecimal (no intermediate var)
                             valorHidden.value = displayVal.replace(/\./g, '').replace(/,/g, '.');
                         } else {
-                            // Empty value -> clear hidden input
                             valorHidden.value = '';
                         }
                     });
