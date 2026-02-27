@@ -3,62 +3,42 @@
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
 	<queryString>
-		<![CDATA[SELECT 
+		<![CDATA[SELECT
+    autor_id,
     autor_nome,
-    livro_titulo,
-    livro_editora,
-    livro_edicao,
-    livro_ano_publicacao,
-    livro_valor,
-    assuntos
+	STRING_AGG(livro_titulo, chr(10)) AS livros,
+	STRING_AGG(livro_editora, chr(10)) AS editoras,
+	STRING_AGG(livro_ano_publicacao, chr(10)) AS anos_publicacao,
+		STRING_AGG(
+			'R$ ' ||
+			replace(
+				replace(
+					replace(to_char(livro_valor, 'FM999G999G990D00'), ',', 'X'),
+					'.', ','
+				),
+				'X', '.'
+			),
+			chr(10)
+		) AS valores,
+    STRING_AGG(assuntos, ', ') AS assuntos,
+	STRING_AGG(todos_autores, chr(10)) AS todos_autores
 FROM vw_relatorio_livros_por_autor
-ORDER BY autor_nome, livro_titulo]]>
+GROUP BY autor_id, autor_nome
+ORDER BY autor_nome]]>
 	</queryString>
+	<field name="autor_id" class="java.lang.Integer"/>
 	<field name="autor_nome" class="java.lang.String"/>
-	<field name="livro_titulo" class="java.lang.String"/>
-	<field name="livro_editora" class="java.lang.String"/>
-	<field name="livro_edicao" class="java.lang.Integer"/>
-	<field name="livro_ano_publicacao" class="java.lang.String"/>
-	<field name="livro_valor" class="java.math.BigDecimal"/>
+	<field name="livros" class="java.lang.String"/>
+	<field name="editoras" class="java.lang.String"/>
+	<field name="anos_publicacao" class="java.lang.String"/>
+	<field name="valores" class="java.lang.String"/>
 	<field name="assuntos" class="java.lang.String"/>
-	<variable name="autor_nome_1" class="java.lang.Integer" resetType="Group" resetGroup="AutorGroup" calculation="Count">
-		<variableExpression><![CDATA[1]]></variableExpression>
-	</variable>
-	<group name="AutorGroup">
-		<groupExpression><![CDATA[$F{autor_nome}]]></groupExpression>
-		<groupHeader>
-			<band height="30">
-				<rectangle>
-					<reportElement mode="Opaque" x="0" y="0" width="555" height="30" backcolor="#E8E8E8"/>
-					<graphicElement>
-						<pen lineWidth="1.0" lineColor="#333333"/>
-					</graphicElement>
-				</rectangle>
-				<textField>
-					<reportElement x="10" y="5" width="400" height="20" forecolor="#000000"/>
-					<textElement verticalAlignment="Middle">
-						<font size="12" isBold="true"/>
-					</textElement>
-					<textFieldExpression><![CDATA[$F{autor_nome}]]></textFieldExpression>
-				</textField>
-				<textField evaluationTime="Group" evaluationGroup="AutorGroup">
-                   <reportElement x="450" y="5" width="95" height="20" forecolor="#000000"/>
-                   <textElement textAlignment="Right" verticalAlignment="Middle">
-                      <font size="11" isBold="true"/>
-                   </textElement>
-                   <textFieldExpression><![CDATA["Livros: " + $V{autor_nome_1}]]></textFieldExpression>
-                </textField>
-			</band>
-		</groupHeader>
-		<groupFooter>
-			<band height="10"/>
-		</groupFooter>
-	</group>
+	<field name="todos_autores" class="java.lang.String"/>
 	<background/>
 	<title>
 		<band height="60">
 			<rectangle>
-				<reportElement x="0" y="0" width="555" height="60" backcolor="#0D47A1"/>
+				<reportElement x="0" y="0" width="555" height="60" backcolor="#1F2937"/>
 			</rectangle>
 			<textField>
 				<reportElement x="0" y="10" width="555" height="40" forecolor="#FFFFFF"/>
@@ -72,7 +52,7 @@ ORDER BY autor_nome, livro_titulo]]>
 	<pageHeader>
 		<band height="20">
 			<textField pattern="dd/MM/yyyy HH:mm:ss">
-				<reportElement x="0" y="0" width="555" height="20" forecolor="#666666"/>
+				<reportElement x="0" y="0" width="555" height="20" forecolor="#6B7280"/>
 				<textElement textAlignment="Right">
 					<font size="10"/>
 				</textElement>
@@ -83,121 +63,135 @@ ORDER BY autor_nome, livro_titulo]]>
 	<columnHeader>
 		<band height="25">
 			<rectangle>
-				<reportElement mode="Opaque" x="0" y="0" width="555" height="25" backcolor="#1565C0"/>
+				<reportElement mode="Opaque" x="0" y="0" width="555" height="25" backcolor="#374151"/>
 			</rectangle>
 			<staticText>
-				<reportElement x="10" y="0" width="110" height="25" forecolor="#FFFFFF"/>
+				<reportElement x="0" y="0" width="80" height="25" forecolor="#FFFFFF"/>
 				<textElement verticalAlignment="Middle">
 					<font size="11" isBold="true"/>
 				</textElement>
-				<text>Título</text>
+				<text>Autor</text>
 			</staticText>
 			<staticText>
-				<reportElement x="125" y="0" width="100" height="25" forecolor="#FFFFFF"/>
+				<reportElement x="80" y="0" width="115" height="25" forecolor="#FFFFFF"/>
+				<textElement verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text>Livros</text>
+			</staticText>
+			<staticText>
+				<reportElement x="195" y="0" width="95" height="25" forecolor="#FFFFFF"/>
 				<textElement verticalAlignment="Middle">
 					<font size="11" isBold="true"/>
 				</textElement>
 				<text>Editora</text>
 			</staticText>
 			<staticText>
-				<reportElement x="230" y="0" width="40" height="25" forecolor="#FFFFFF"/>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font size="11" isBold="true"/>
-				</textElement>
-				<text>Edição</text>
-			</staticText>
-			<staticText>
-				<reportElement x="275" y="0" width="45" height="25" forecolor="#FFFFFF"/>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
+				<reportElement x="290" y="0" width="60" height="25" forecolor="#FFFFFF"/>
+				<textElement verticalAlignment="Middle">
 					<font size="11" isBold="true"/>
 				</textElement>
 				<text>Ano</text>
 			</staticText>
 			<staticText>
-				<reportElement x="315" y="0" width="80" height="25" forecolor="#FFFFFF"/>
-				<textElement textAlignment="Right" verticalAlignment="Middle">
+				<reportElement x="350" y="0" width="75" height="25" forecolor="#FFFFFF"/>
+				<textElement verticalAlignment="Middle">
 					<font size="11" isBold="true"/>
 				</textElement>
 				<text>Valor (R$)</text>
 			</staticText>
 			<staticText>
-				<reportElement x="420" y="0" width="135" height="25" forecolor="#FFFFFF"/>
+				<reportElement x="425" y="0" width="70" height="25" forecolor="#FFFFFF"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="11" isBold="true"/>
 				</textElement>
-				<text>Assuntos</text>
+				<text>Assunto</text>
+			</staticText>
+			<staticText>
+				<reportElement x="495" y="0" width="60" height="25" forecolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text>Autores</text>
 			</staticText>
 		</band>
 	</columnHeader>
 	<detail>
-           <band height="40" splitType="Stretch">
-              <rectangle>
-                 <reportElement x="0" y="0" width="555" height="40" backcolor="#F5F5F5" stretchType="RelativeToTallestObject"/>
-                 <graphicElement>
-                    <pen lineWidth="0.5" lineColor="#CCCCCC"/>
-                 </graphicElement>
-              </rectangle>
-              <textField isStretchWithOverflow="true">
-                 <reportElement x="10" y="5" width="110" height="30"/>
-                 <textElement verticalAlignment="Top">
-                    <font size="10"/>
-                 </textElement>
-                 <textFieldExpression><![CDATA[$F{livro_titulo}]]></textFieldExpression>
-              </textField>
-              <textField isStretchWithOverflow="true">
-                 <reportElement x="125" y="5" width="100" height="30"/>
-                 <textElement verticalAlignment="Top">
-                    <font size="10"/>
-                 </textElement>
-                 <textFieldExpression><![CDATA[$F{livro_editora}]]></textFieldExpression>
-              </textField>
-              <textField>
-                 <reportElement x="230" y="5" width="40" height="30"/>
-                 <textElement textAlignment="Center" verticalAlignment="Top">
-                    <font size="10"/>
-                 </textElement>
-                 <textFieldExpression><![CDATA[$F{livro_edicao}]]></textFieldExpression>
-              </textField>
-              <textField>
-                 <reportElement x="275" y="5" width="45" height="30"/>
-                 <textElement textAlignment="Center" verticalAlignment="Top">
-                    <font size="10"/>
-                 </textElement>
-                 <textFieldExpression><![CDATA[$F{livro_ano_publicacao}]]></textFieldExpression>
-              </textField>
-              <textField pattern="¤ #,##0.00">
-                 <reportElement x="320" y="5" width="80" height="30"/>
-                 <textElement textAlignment="Right" verticalAlignment="Top">
-                    <font size="10"/>
-                 </textElement>
-                 <textFieldExpression><![CDATA[$F{livro_valor}]]></textFieldExpression>
-              </textField>
-              <textField isStretchWithOverflow="true">
-                 <reportElement x="420" y="5" width="135" height="30"/>
-                 <textElement textAlignment="Center" verticalAlignment="Top">
-                    <font size="10"/>
-                 </textElement>
-                 <textFieldExpression><![CDATA[$F{assuntos}]]></textFieldExpression>
-              </textField>
-           </band>
-        </detail>
+		<band height="60" splitType="Stretch">
+			<rectangle>
+				<reportElement x="0" y="0" width="555" height="60" backcolor="#F9FAFB" stretchType="RelativeToTallestObject"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineColor="#E5E7EB"/>
+				</graphicElement>
+			</rectangle>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="0" y="5" width="80" height="50"/>
+				<textElement verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{autor_nome}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="80" y="5" width="115" height="50"/>
+				<textElement verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{livros}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="195" y="5" width="95" height="50"/>
+				<textElement verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{editoras}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="290" y="5" width="60" height="50"/>
+				<textElement verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{anos_publicacao}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="350" y="5" width="75" height="50"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{valores}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="425" y="5" width="70" height="50"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{assuntos}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="495" y="5" width="60" height="50"/>
+				<textElement verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{todos_autores}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
 	<pageFooter>
 		<band height="20">
 			<rectangle>
-				<reportElement x="0" y="0" width="555" height="20" backcolor="#F5F5F5"/>
+				<reportElement x="0" y="0" width="555" height="20" backcolor="#F3F4F6"/>
 				<graphicElement>
-					<pen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<pen lineWidth="0.5" lineColor="#E5E7EB"/>
 				</graphicElement>
 			</rectangle>
 			<textField>
-				<reportElement x="0" y="0" width="500" height="20" forecolor="#666666"/>
+				<reportElement x="0" y="0" width="500" height="20" forecolor="#6B7280"/>
 				<textElement verticalAlignment="Middle">
 					<font size="10"/>
 				</textElement>
 				<textFieldExpression><![CDATA["Biblioteca - Sistema de Cadastro de Livros"]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="500" y="0" width="55" height="20" forecolor="#666666"/>
+				<reportElement x="500" y="0" width="55" height="20" forecolor="#6B7280"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="10"/>
 				</textElement>

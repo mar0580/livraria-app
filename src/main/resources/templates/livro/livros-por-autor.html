@@ -23,24 +23,97 @@
                 <th>Livro</th>
                 <th>Editora</th>
                 <th>Ano</th>
-                <th>Edição</th>
-                <th>Valor (R$)</th>
-                <th>Assuntos</th>
+                <th>Valore (R$)</th>
+                <th>Assunto</th>
+                <th>Autores</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="reg : ${registros}">
                 <td th:text="${reg.autorNome}"></td>
-                <td th:text="${reg.livroTitulo}"></td>
-                <td th:text="${reg.livroEditora}"></td>
-                <td th:text="${reg.livroAnoPublicacao}"></td>
-                <td th:text="${reg.livroEdicao}"></td>
-                <td th:text="${#numbers.formatDecimal(reg.livroValor, 1, 'POINT', 2, 'COMMA')}"></td>
-                <td th:text="${reg.assuntos}"></td>
+                <td class="livros" th:text="${reg.livros}" th:attr="data-raw=${reg.livros}"></td>
+                <td th:text="${reg.editoras}"></td>
+                <td th:text="${reg.anosPublicacao}"></td>
+                <td class="valores" th:text="${reg.valores}" th:attr="data-raw=${reg.valores}"></td>
+                <td class="assuntos" th:text="${reg.assuntos}"></td>
+                <td class="autores" th:text="${reg.todosAutores}" th:attr="data-raw=${reg.todosAutores}"></td>
             </tr>
             </tbody>
         </table>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const formatter = new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            });
+
+            document.querySelectorAll('td.valores').forEach(function (cell) {
+                const raw = cell.getAttribute('data-raw') || '';
+                if (!raw.trim()) {
+                    return;
+                }
+
+                const formatted = raw
+                    .split(';')
+                    .map(function (item) { return item.trim(); })
+                    .filter(function (item) { return item.length > 0; })
+                    .map(function (item) {
+                        const normalized = item.replace(/[^0-9,.-]/g, '').replace(',', '.');
+                        const value = Number.parseFloat(normalized);
+                        if (Number.isNaN(value)) {
+                            return item;
+                        }
+                        return formatter.format(value);
+                    })
+                    .join(' ');
+
+                if (formatted.trim()) {
+                    cell.textContent = formatted;
+                }
+            });
+
+            document.querySelectorAll('td.livros').forEach(function (cell) {
+                const raw = cell.getAttribute('data-raw') || '';
+                if (!raw.trim()) {
+                    return;
+                }
+
+                const formatted = raw
+                    .split(',')
+                    .map(function (item) { return item.trim(); })
+                    .filter(function (item) { return item.length > 0; })
+                    .map(function (item, index, arr) {
+                        return index < arr.length - 1 ? item + ';' : item + ' ';
+                    })
+                    .join('<br>');
+
+                if (formatted.trim()) {
+                    cell.innerHTML = formatted;
+                }
+            });
+
+            document.querySelectorAll('td.autores').forEach(function (cell) {
+                const raw = cell.getAttribute('data-raw') || '';
+                if (!raw.trim()) {
+                    return;
+                }
+
+                const formatted = raw
+                    .split(',')
+                    .map(function (item) { return item.trim(); })
+                    .filter(function (item) { return item.length > 0; })
+                    .map(function (item, index, arr) {
+                        return index < arr.length - 1 ? item + ',' : item + ' ';
+                    })
+                    .join('<br>');
+
+                if (formatted.trim()) {
+                    cell.innerHTML = formatted;
+                }
+            });            
+        });
+    </script>
 </div>
 </body>
 </html>

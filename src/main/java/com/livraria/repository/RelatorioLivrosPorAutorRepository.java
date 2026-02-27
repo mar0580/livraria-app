@@ -10,18 +10,23 @@ import java.util.List;
 @Repository
 public interface RelatorioLivrosPorAutorRepository extends JpaRepository<RelatorioLivrosPorAutor, Integer> {
 
-    @Query(value = "SELECT " +
-            "autor_id AS autorId, " +
-            "autor_nome AS autorNome, " +
-            "livro_id AS livroId, " +
-            "livro_titulo AS livroTitulo, " +
-            "livro_editora AS livroEditora, " +
-            "livro_edicao AS livroEdicao, " +
-            "livro_ano_publicacao AS livroAnoPublicacao, " +
-            "livro_valor AS livroValor, " +
-            "assuntos, " +
-            "todos_autores AS todosAutores " + // Alias essencial para casar com a Projection
-            "FROM vw_relatorio_livros_por_autor " +
-            "ORDER BY autor_nome, livro_titulo", nativeQuery = true)
+    @Query(value = """
+    SELECT
+        autor_id AS autorId,
+        autor_nome AS autorNome,
+        STRING_AGG(livro_titulo, ', ') AS livros,
+        STRING_AGG(livro_editora, ', ') AS editoras,
+        STRING_AGG(livro_ano_publicacao, ', ') AS anosPublicacao,
+        STRING_AGG(livro_valor::text, '; ') AS valores,
+        STRING_AGG(assuntos, ', ') AS assuntos,
+        STRING_AGG(todos_autores, ', ') AS todosAutores
+    FROM
+        vw_relatorio_livros_por_autor
+    GROUP BY
+        autor_id,
+        autor_nome
+    ORDER BY
+        autor_nome
+    """, nativeQuery = true)
     List<RelatorioLivrosPorAutorProjection> findAllProjections();
 }
