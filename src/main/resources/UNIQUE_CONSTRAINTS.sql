@@ -1,5 +1,5 @@
 -- Verificar duplicidades antes de aplicar os índices (case-insensitive)
--- Se alguma consulta retornar linhas, trate os dados antes de prosseguir.
+-- Se alguma consulta retornar linhas, tratar os dados antes de prosseguir.
 SELECT LOWER(nome) AS nome_normalizado, COUNT(*)
 FROM autor
 GROUP BY LOWER(nome)
