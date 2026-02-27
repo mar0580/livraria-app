@@ -32,7 +32,11 @@ public class GlobalExceptionHandler {
         Throwable root = ex.getRootCause();
         if (root != null && root.getMessage() != null) {
             String rootMessage = root.getMessage();
-            if (rootMessage.contains("livro_autor")) {
+            if (rootMessage.contains("uq_autor_nome_ci") || rootMessage.contains("autor_nome") || rootMessage.contains("autor")) {
+                mensagem = "Autor já cadastrado. Informe um nome diferente.";
+            } else if (rootMessage.contains("uq_assunto_descricao_ci") || rootMessage.contains("assunto_descricao") || rootMessage.contains("assunto")) {
+                mensagem = "Assunto já cadastrado. Informe uma descrição diferente.";
+            } else if (rootMessage.contains("livro_autor")) {
                 mensagem = "Não é possível excluir o autor porque existem livros vinculados a ele. " +
                            "Desvincule ou exclua os registros relacionados antes.";
             } else if (rootMessage.contains("livro_assunto")) {
