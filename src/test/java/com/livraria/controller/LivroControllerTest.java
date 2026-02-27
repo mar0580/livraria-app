@@ -7,6 +7,7 @@ import com.livraria.service.AssuntoService;
 import com.livraria.service.AutorService;
 import com.livraria.service.LivroService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -80,6 +81,7 @@ class LivroControllerTest {
     }
 
     @Test
+    @DisplayName("Deve listar livros e retornar a view de lista")
     void listar_deveRetornarListaDeLivros() {
         List<Livro> livrosEsperados = Arrays.asList(livro);
         when(livroService.listarTodos()).thenReturn(livrosEsperados);
@@ -92,6 +94,7 @@ class LivroControllerTest {
     }
 
     @Test
+    @DisplayName("Deve carregar formulário com autores e assuntos")
     void novo_deveCarregarFormularioComDados() {
         when(autorService.listarTodos()).thenReturn(autores);
         when(assuntoService.listarTodos()).thenReturn(assuntos);
@@ -107,6 +110,7 @@ class LivroControllerTest {
     }
 
     @Test
+    @DisplayName("Deve salvar com dados válidos e redireciona")
     void salvar_comDadosValidos_deveRedirecionarParaLista() {
         Set<Integer> autoresIds = new HashSet<>(Arrays.asList(1));
         Set<Integer> assuntosIds = new HashSet<>(Arrays.asList(1));
@@ -122,6 +126,7 @@ class LivroControllerTest {
     }
 
     @Test
+    @DisplayName("Com erros de validação, retornar formulário")
     void salvar_comErrosDeValidacao_deveRetornarFormulario() {
         Set<Integer> autoresIds = new HashSet<>(Arrays.asList(1));
         Set<Integer> assuntosIds = new HashSet<>(Arrays.asList(1));
@@ -140,29 +145,44 @@ class LivroControllerTest {
     }
 
     @Test
-    void salvar_comAutoresNull_deveChamarServico() {
+    @DisplayName("Quando autores e assuntos são nulos, retorna formulário com mensagem")
+    void salvar_comAutoresEAssuntosNull_deveRetornarFormularioComMensagem() {
         when(bindingResult.hasErrors()).thenReturn(false);
-        when(livroService.salvar(any(Livro.class), isNull(), isNull())).thenReturn(livro);
+        when(livroService.salvar(any(Livro.class), isNull(), isNull()))
+                .thenThrow(new IllegalArgumentException("Selecione ao menos um autor e um assunto."));
+        when(autorService.listarTodos()).thenReturn(autores);
+        when(assuntoService.listarTodos()).thenReturn(assuntos);
 
         String viewName = livroController.salvar(livro, bindingResult, null, null, model);
 
-        assertEquals("redirect:/livros", viewName);
+        assertEquals("livro/form", viewName);
+        verify(model).addAttribute("errorMessage", "Selecione ao menos um autor e um assunto.");
+        verify(model).addAttribute("autores", autores);
+        verify(model).addAttribute("assuntos", assuntos);
         verify(livroService).salvar(livro, null, null);
     }
 
     @Test
-    void salvar_comAssuntosNull_deveChamarServico() {
+    @DisplayName("Quando assuntos são nulos, retorna formulário com mensagem")
+    void salvar_comAssuntosNull_deveRetornarFormularioComMensagem() {
         Set<Integer> autoresIds = new HashSet<>(Arrays.asList(1));
         when(bindingResult.hasErrors()).thenReturn(false);
-        when(livroService.salvar(any(Livro.class), anySet(), isNull())).thenReturn(livro);
+        when(livroService.salvar(any(Livro.class), anySet(), isNull()))
+                .thenThrow(new IllegalArgumentException("Selecione ao menos um assunto."));
+        when(autorService.listarTodos()).thenReturn(autores);
+        when(assuntoService.listarTodos()).thenReturn(assuntos);
 
         String viewName = livroController.salvar(livro, bindingResult, autoresIds, null, model);
 
-        assertEquals("redirect:/livros", viewName);
+        assertEquals("livro/form", viewName);
+        verify(model).addAttribute("errorMessage", "Selecione ao menos um assunto.");
+        verify(model).addAttribute("autores", autores);
+        verify(model).addAttribute("assuntos", assuntos);
         verify(livroService).salvar(livro, autoresIds, null);
     }
 
     @Test
+    @DisplayName("Editar livro existente e carregar formulário")
     void editar_comIdValido_deveCarregarFormularioComLivro() {
         when(livroService.buscarPorId(1)).thenReturn(livro);
         when(autorService.listarTodos()).thenReturn(autores);
@@ -178,6 +198,7 @@ class LivroControllerTest {
     }
 
     @Test
+    @DisplayName("Ao editar livro inexistente, lançar exceção")
     void editar_comIdInvalido_deveLancarExcecao() {
         when(livroService.buscarPorId(999)).thenThrow(new IllegalArgumentException("Livro não encontrado com ID: 999"));
 
@@ -189,6 +210,7 @@ class LivroControllerTest {
     }
 
     @Test
+    @DisplayName("Excluir livro e redirecionar para lista")
     void excluir_comIdValido_deveExcluirERedirecionarParaLista() {
         doNothing().when(livroService).excluir(1);
 
@@ -199,6 +221,7 @@ class LivroControllerTest {
     }
 
     @Test
+    @DisplayName("Ao excluir livro inexistente, lança exceção")
     void excluir_comIdInvalido_deveLancarExcecao() {
         doThrow(new IllegalArgumentException("Livro não encontrado com ID: 999"))
                 .when(livroService).excluir(999);
@@ -211,15 +234,22 @@ class LivroControllerTest {
     }
 
     @Test
-    void salvar_comConjuntosVazios_deveChamarServico() {
+    @DisplayName("Quando autores e assuntos estão vazios, retorna formulário com mensagem")
+    void salvar_comConjuntosVazios_deveRetornarFormularioComMensagem() {
         Set<Integer> autoresIds = new HashSet<>();
         Set<Integer> assuntosIds = new HashSet<>();
         when(bindingResult.hasErrors()).thenReturn(false);
-        when(livroService.salvar(any(Livro.class), anySet(), anySet())).thenReturn(livro);
+        when(livroService.salvar(any(Livro.class), anySet(), anySet()))
+                .thenThrow(new IllegalArgumentException("Selecione ao menos um autor e um assunto."));
+        when(autorService.listarTodos()).thenReturn(autores);
+        when(assuntoService.listarTodos()).thenReturn(assuntos);
 
         String viewName = livroController.salvar(livro, bindingResult, autoresIds, assuntosIds, model);
 
-        assertEquals("redirect:/livros", viewName);
+        assertEquals("livro/form", viewName);
+        verify(model).addAttribute("errorMessage", "Selecione ao menos um autor e um assunto.");
+        verify(model).addAttribute("autores", autores);
+        verify(model).addAttribute("assuntos", assuntos);
         verify(livroService).salvar(livro, autoresIds, assuntosIds);
     }
 }

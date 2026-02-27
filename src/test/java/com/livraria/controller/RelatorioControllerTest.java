@@ -3,6 +3,7 @@ package com.livraria.controller;
 import com.livraria.dto.RelatorioPdfDto;
 import com.livraria.service.RelatorioService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -44,6 +45,7 @@ class RelatorioControllerTest {
     }
 
     @Test
+    @DisplayName("Listar registros do relatório e retornar a view")
     void relatorioLivrosPorAutor_deveAdicionarRegistrosERetornarView() {
         when(relatorioService.gerarRelatorio()).thenReturn(Collections.emptyList());
 
@@ -55,6 +57,7 @@ class RelatorioControllerTest {
     }
 
     @Test
+    @DisplayName("Propagar exceção quando serviço falhar ao listar relatório")
     void relatorioLivrosPorAutor_quandoServiceLancaExcecao_devePropagar() {
         when(relatorioService.gerarRelatorio()).thenThrow(new IllegalStateException("erro"));
 
@@ -64,6 +67,7 @@ class RelatorioControllerTest {
     }
 
     @Test
+    @DisplayName("Gerar PDF com headers corretos quando sucesso")
     void relatorioLivrosPorAutorPDF_quandoSucesso_deveRetornarArquivoPdfEHeaders() {
         when(relatorioService.gerarRelatorioPdfCompleto()).thenReturn(relatorioPdfDto);
 
@@ -81,6 +85,7 @@ class RelatorioControllerTest {
     }
 
     @Test
+    @DisplayName("Retornar PDF com content-length zero quando conteúdo vazio")
     void relatorioLivrosPorAutorPDF_quandoConteudoVazio_deveRetornarArquivoComContentLengthZero() {
         RelatorioPdfDto vazio = RelatorioPdfDto.builder()
                 .conteudo(new byte[0])
@@ -100,6 +105,7 @@ class RelatorioControllerTest {
     }
 
     @Test
+    @DisplayName("Retorna erro 500 quando serviço lançar IllegalStateException")
     void relatorioLivrosPorAutorPDF_quandoServiceLancaIllegalStateException_deveRetornarErro500() {
         when(relatorioService.gerarRelatorioPdfCompleto())
                 .thenThrow(new IllegalStateException("Erro ao gerar PDF: conteúdo vazio ou nulo"));
@@ -112,6 +118,7 @@ class RelatorioControllerTest {
     }
 
     @Test
+    @DisplayName("Retornar erro 500 quando serviço lançar RuntimeException")
     void relatorioLivrosPorAutorPDF_quandoServiceLancaRuntimeException_deveRetornarErro500() {
         when(relatorioService.gerarRelatorioPdfCompleto())
                 .thenThrow(new RuntimeException("Erro ao gerar relatório PDF"));

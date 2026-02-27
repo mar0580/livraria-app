@@ -3,6 +3,7 @@ package com.livraria.service.impl;
 import com.livraria.entity.Assunto;
 import com.livraria.repository.AssuntoRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -44,6 +45,7 @@ class AssuntoServiceImplTest {
     }
 
     @Test
+    @DisplayName("Listar assuntos retornando conteúdo esperado")
     void listarTodos_deveRetornarListaDeAssuntos() {
         List<Assunto> assuntos = Arrays.asList(assunto, assunto2);
         when(assuntoRepository.findAll()).thenReturn(assuntos);
@@ -58,6 +60,7 @@ class AssuntoServiceImplTest {
     }
 
     @Test
+    @DisplayName("Quando repositório vazio, retornar lista vazia")
     void listarTodos_quandoVazio_deveRetornarListaVazia() {
         when(assuntoRepository.findAll()).thenReturn(Collections.emptyList());
 
@@ -69,6 +72,7 @@ class AssuntoServiceImplTest {
     }
 
     @Test
+    @DisplayName("Retornar a mesma referência do repositório")
     void listarTodos_deveRetornarMesmaReferenciaDoRepositorio() {
         List<Assunto> assuntos = Arrays.asList(assunto);
         when(assuntoRepository.findAll()).thenReturn(assuntos);
@@ -80,6 +84,7 @@ class AssuntoServiceImplTest {
     }
 
     @Test
+    @DisplayName("Buscar por id válido e retornar assunto")
     void buscarPorId_comIdValido_deveRetornarAssunto() {
         when(assuntoRepository.findById(1)).thenReturn(Optional.of(assunto));
 
@@ -92,6 +97,7 @@ class AssuntoServiceImplTest {
     }
 
     @Test
+    @DisplayName("Buscar por id inválido e lançar IllegalArgumentException")
     void buscarPorId_comIdInvalido_deveLancarIllegalArgumentException() {
         when(assuntoRepository.findById(999)).thenReturn(Optional.empty());
 
@@ -104,6 +110,7 @@ class AssuntoServiceImplTest {
     }
 
     @Test
+    @DisplayName("Buscar por id e retornar o mesmo objeto")
     void buscarPorId_deveRetornarMesmoObjeto() {
         when(assuntoRepository.findById(1)).thenReturn(Optional.of(assunto));
 
@@ -114,6 +121,7 @@ class AssuntoServiceImplTest {
     }
 
     @Test
+    @DisplayName("Salvar assunto válido com sucesso")
     void salvar_comAssuntoValido_deveSalvarComSucesso() {
         Assunto assuntoParaSalvar = Assunto.builder()
                 .descricao("Novo Assunto")
@@ -134,6 +142,7 @@ class AssuntoServiceImplTest {
     }
 
     @Test
+    @DisplayName("Salvar retorna o assunto persistido")
     void salvar_deveRetornarAssuntoSalvo() {
         when(assuntoRepository.save(any(Assunto.class))).thenReturn(assunto);
 
@@ -144,6 +153,7 @@ class AssuntoServiceImplTest {
     }
 
     @Test
+    @DisplayName("Salvar múltiplos assuntos persiste cada um")
     void salvar_comMultiplosAssuntos_deveSalvarCadaUm() {
         Assunto assunto1Salvo = Assunto.builder().id(1).descricao("Ficção").build();
         Assunto assunto2Salvo = Assunto.builder().id(2).descricao("Drama").build();
@@ -161,6 +171,7 @@ class AssuntoServiceImplTest {
     }
 
     @Test
+    @DisplayName("Excluir com id válido e chamar repositório")
     void excluir_comIdValido_deveExcluirComSucesso() {
         doNothing().when(assuntoRepository).deleteById(1);
 
@@ -170,6 +181,7 @@ class AssuntoServiceImplTest {
     }
 
     @Test
+    @DisplayName("Excluir e invocar repositório uma vez")
     void excluir_deveInvocarRepositorioExatamenteUmaVez() {
         doNothing().when(assuntoRepository).deleteById(1);
 
@@ -179,6 +191,7 @@ class AssuntoServiceImplTest {
     }
 
     @Test
+    @DisplayName("Excluir múltiplos ids remove todos")
     void excluir_comMultiplosIds_deveExcluirTodos() {
         doNothing().when(assuntoRepository).deleteById(any(Integer.class));
 
@@ -193,6 +206,7 @@ class AssuntoServiceImplTest {
     }
 
     @Test
+    @DisplayName("Buscar por id zero e lançar exceção")
     void buscarPorId_comValorZero_deveLancarExcecao() {
         when(assuntoRepository.findById(0)).thenReturn(Optional.empty());
 
@@ -205,6 +219,7 @@ class AssuntoServiceImplTest {
     }
 
     @Test
+    @DisplayName("Buscar por id negativo e lança exceção")
     void buscarPorId_comValorNegativo_deveLancarExcecao() {
         when(assuntoRepository.findById(-1)).thenReturn(Optional.empty());
 
@@ -217,6 +232,7 @@ class AssuntoServiceImplTest {
     }
 
     @Test
+    @DisplayName("Salvar e passar o assunto correto ao repositório")
     void salvar_devePassarOAssuntoCorretoParaoRepositorio() {
         Assunto assuntoEsperado = Assunto.builder()
                 .id(5)
@@ -231,6 +247,7 @@ class AssuntoServiceImplTest {
     }
 
     @Test
+    @DisplayName("Listar todos e chamar repositório duas vezes")
     void listarTodos_deveChamarRepositorioUmaUnicaVez() {
         when(assuntoRepository.findAll()).thenReturn(Collections.emptyList());
 

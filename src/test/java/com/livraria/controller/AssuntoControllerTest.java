@@ -3,6 +3,7 @@ package com.livraria.controller;
 import com.livraria.entity.Assunto;
 import com.livraria.service.AssuntoService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -36,6 +37,7 @@ class AssuntoControllerTest {
     void setup() {}
 
     @Test
+    @DisplayName("Deve listar assuntos e retornar a view de lista")
     void listar_deveAdicionarTodosOsAssuntosERetornarView() {
         List<Assunto> fake = Arrays.asList(new Assunto(), new Assunto());
         when(assuntoService.listarTodos()).thenReturn(fake);
@@ -47,12 +49,14 @@ class AssuntoControllerTest {
     }
 
     @Test
+    @DisplayName("Deve retornar o formulário de novo assunto")
     void novo_deveRetornarFormulario() {
         String view = controller.novo(new Assunto());
         assertEquals("assunto/form", view);
     }
 
     @Test
+    @DisplayName("Quando houver erros de validação, manter o formulário e não salvar")
     void salvar_comErros_deveRetornarFormularioENaoSalvar() {
         when(bindingResult.hasErrors()).thenReturn(true);
         Assunto assunto = new Assunto();
@@ -64,6 +68,7 @@ class AssuntoControllerTest {
     }
 
     @Test
+    @DisplayName("Quando não houver erros de validação, salvar e redirecionar para listagem")
     void salvar_semErros_deveSalvarERedirecionar() {
         when(bindingResult.hasErrors()).thenReturn(false);
         Assunto assunto = new Assunto();
@@ -75,6 +80,7 @@ class AssuntoControllerTest {
     }
 
     @Test
+    @DisplayName("Deve editar assunto existente e retornar o formulário preenchido")
     void editar_comIdExistente_deveAdicionarAssuntoERetornarFormulario() {
         Assunto stored = new Assunto();
         stored.setId(42);
@@ -87,6 +93,7 @@ class AssuntoControllerTest {
     }
 
     @Test
+    @DisplayName("Na tentativa de editar assunto inexistente, lançar exceção")
     void editar_comIdInexistente_deveLancarExcecao() {
         when(assuntoService.buscarPorId(99)).thenThrow(new IllegalArgumentException("Assunto inválido: 99"));
 
@@ -96,6 +103,7 @@ class AssuntoControllerTest {
     }
 
     @Test
+    @DisplayName("Excluir assunto e redirecionar para listagem")
     void excluir_deveDeletarERedirecionar() {
         String view = controller.excluir(123);
         assertEquals("redirect:/assuntos", view);

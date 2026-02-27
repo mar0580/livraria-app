@@ -30,9 +30,15 @@ public class GlobalExceptionHandler {
         String mensagem = "Operação não permitida. Verifique se há vínculos com outros registros.";
         // detecta FK para tabela de junção livro_autor e oferece explicação mais amigável
         Throwable root = ex.getRootCause();
-        if (root != null && root.getMessage() != null && root.getMessage().contains("livro_autor")) {
-            mensagem = "Não é possível excluir o autor porque existem livros vinculados a ele. " +
-                       "Desvincule ou exclua os registros relacionados antes.";
+        if (root != null && root.getMessage() != null) {
+            String rootMessage = root.getMessage();
+            if (rootMessage.contains("livro_autor")) {
+                mensagem = "Não é possível excluir o autor porque existem livros vinculados a ele. " +
+                           "Desvincule ou exclua os registros relacionados antes.";
+            } else if (rootMessage.contains("livro_assunto")) {
+                mensagem = "Não é possível excluir o assunto porque existem livros vinculados a ele. " +
+                           "Desvincule ou exclua os registros relacionados antes.";
+            }
         }
         model.addAttribute("errorMessage", mensagem);
         model.addAttribute("status", 400);

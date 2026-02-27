@@ -59,8 +59,16 @@ public class LivroController {
             return "livro/form";
         }
 
-        livroService.salvar(livro, autoresSelecionados, assuntosSelecionados);
-        return "redirect:/livros";
+        try {
+            livroService.salvar(livro, autoresSelecionados, assuntosSelecionados);
+            return "redirect:/livros";
+        } catch (IllegalArgumentException ex) {
+            logger.warn("Falha ao salvar livro: {}", ex.getMessage());
+            model.addAttribute("errorMessage", ex.getMessage());
+            model.addAttribute("autores", autorService.listarTodos());
+            model.addAttribute("assuntos", assuntoService.listarTodos());
+            return "livro/form";
+        }
     }
 
     @GetMapping("/{id}/editar")

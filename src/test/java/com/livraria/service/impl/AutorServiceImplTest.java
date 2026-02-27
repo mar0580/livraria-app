@@ -3,6 +3,7 @@ package com.livraria.service.impl;
 import com.livraria.entity.Autor;
 import com.livraria.repository.AutorRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -44,6 +45,7 @@ class AutorServiceImplTest {
     }
 
     @Test
+    @DisplayName("Listar todos os autores retornando conteúdo esperado")
     void listarTodos_deveRetornarListaDeAutores() {
         List<Autor> autores = Arrays.asList(autor, autor2);
         when(autorRepository.findAll()).thenReturn(autores);
@@ -58,6 +60,7 @@ class AutorServiceImplTest {
     }
 
     @Test
+    @DisplayName("Quando repositório estiver vazio, retornar lista vazia")
     void listarTodos_quandoVazio_deveRetornarListaVazia() {
         when(autorRepository.findAll()).thenReturn(Collections.emptyList());
 
@@ -69,6 +72,7 @@ class AutorServiceImplTest {
     }
 
     @Test
+    @DisplayName("Retornar a mesma referência fornecida pelo repositório")
     void listarTodos_deveRetornarMesmaReferenciaDoRepositorio() {
         List<Autor> autores = Arrays.asList(autor);
         when(autorRepository.findAll()).thenReturn(autores);
@@ -80,6 +84,7 @@ class AutorServiceImplTest {
     }
 
     @Test
+    @DisplayName("Buscar por id válido e retornar autor")
     void buscarPorId_comIdValido_deveRetornarAutor() {
         when(autorRepository.findById(1)).thenReturn(Optional.of(autor));
 
@@ -92,6 +97,7 @@ class AutorServiceImplTest {
     }
 
     @Test
+    @DisplayName("Buscar por id inválido e lançar IllegalArgumentException")
     void buscarPorId_comIdInvalido_deveLancarIllegalArgumentException() {
         when(autorRepository.findById(999)).thenReturn(Optional.empty());
 
@@ -104,6 +110,7 @@ class AutorServiceImplTest {
     }
 
     @Test
+    @DisplayName("Buscar por id e retornar o mesmo objeto encontrado")
     void buscarPorId_deveRetornarMesmoObjeto() {
         when(autorRepository.findById(1)).thenReturn(Optional.of(autor));
 
@@ -114,6 +121,7 @@ class AutorServiceImplTest {
     }
 
     @Test
+    @DisplayName("Salva autor válido com sucesso")
     void salvar_comAutorValido_deveSalvarComSucesso() {
         Autor autorParaSalvar = Autor.builder()
                 .nome("Novo Autor")
@@ -134,6 +142,7 @@ class AutorServiceImplTest {
     }
 
     @Test
+    @DisplayName("Salvar e retornar o autor persistido")
     void salvar_deveRetornarAutorSalvo() {
         when(autorRepository.save(any(Autor.class))).thenReturn(autor);
 
@@ -144,6 +153,7 @@ class AutorServiceImplTest {
     }
 
     @Test
+    @DisplayName("Salvar múltiplos autores e persistir cada um")
     void salvar_comMultiplosAutores_deveSalvarCadaUm() {
         Autor autor1Salvo = Autor.builder().id(1).nome("Autor 1").build();
         Autor autor2Salvo = Autor.builder().id(2).nome("Autor 2").build();
@@ -161,6 +171,7 @@ class AutorServiceImplTest {
     }
 
     @Test
+    @DisplayName("Excluir com id válido e chamar repositório")
     void excluir_comIdValido_deveExcluirComSucesso() {
         doNothing().when(autorRepository).deleteById(1);
 
@@ -170,6 +181,7 @@ class AutorServiceImplTest {
     }
 
     @Test
+    @DisplayName("Excluir e invocar repositório exatamente uma vez")
     void excluir_deveInvocarRepositorioExatamenteUmaVez() {
         doNothing().when(autorRepository).deleteById(1);
 
@@ -179,6 +191,7 @@ class AutorServiceImplTest {
     }
 
     @Test
+    @DisplayName("Excluir múltiplos ids remove todos")
     void excluir_comMultiplosIds_deveExcluirTodos() {
         doNothing().when(autorRepository).deleteById(any(Integer.class));
 
@@ -193,6 +206,7 @@ class AutorServiceImplTest {
     }
 
     @Test
+    @DisplayName("Buscar por id zero e lançar exceção")
     void buscarPorId_comValorZero_deveLancarExcecao() {
         when(autorRepository.findById(0)).thenReturn(Optional.empty());
 
@@ -205,6 +219,7 @@ class AutorServiceImplTest {
     }
 
     @Test
+    @DisplayName("Buscar por id negativo e lançar exceção")
     void buscarPorId_comValorNegativo_deveLancarExcecao() {
         when(autorRepository.findById(-1)).thenReturn(Optional.empty());
 
@@ -217,6 +232,7 @@ class AutorServiceImplTest {
     }
 
     @Test
+    @DisplayName("Salvar e passar o autor correto ao repositório")
     void salvar_devePassarOAutorCorretoParaoRepositorio() {
         Autor autorEsperado = Autor.builder()
                 .id(5)
@@ -231,6 +247,7 @@ class AutorServiceImplTest {
     }
 
     @Test
+    @DisplayName("Listar todos e chamar repositório duas vezes")
     void listarTodos_deveChamarRepositorioUmaUnicaVez() {
         when(autorRepository.findAll()).thenReturn(Collections.emptyList());
 
@@ -241,6 +258,7 @@ class AutorServiceImplTest {
     }
 
     @Test
+    @DisplayName("Mensagem de erro contém o id informado")
     void buscarPorId_mensagemDeErroDeveConterIdInformado() {
         when(autorRepository.findById(123)).thenReturn(Optional.empty());
 

@@ -48,6 +48,18 @@ public class LivroServiceImpl implements LivroService {
             throw new IllegalArgumentException("Livro não pode ser nulo");
         }
 
+        boolean autoresVazios = idsAutores == null || idsAutores.isEmpty();
+        boolean assuntosVazios = idsAssuntos == null || idsAssuntos.isEmpty();
+        if (autoresVazios && assuntosVazios) {
+            throw new IllegalArgumentException("Selecione ao menos um autor e um assunto.");
+        }
+        if (autoresVazios) {
+            throw new IllegalArgumentException("Selecione ao menos um autor.");
+        }
+        if (assuntosVazios) {
+            throw new IllegalArgumentException("Selecione ao menos um assunto.");
+        }
+
         Set<Integer> autoresIds = normalizarIds(idsAutores, "autores");
         Set<Integer> assuntosIds = normalizarIds(idsAssuntos, "assuntos");
 
