@@ -1,8 +1,21 @@
-<div th:replace="~{../layout :: conteudo}">
-    <div>
-        <h2>Relatório - Livros por Autor</h2>
-        <p class="text-muted">Dados obtidos da view <strong>vw_relatorio_livros_por_autor</strong></p>
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout.html}">
+<head>
+    <title>Relatório - Livros por Autor</title>
+</head>
+<body>
+<div th:fragment="content">
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title mb-2">Relatório - Livros por Autor</h1>
+            <p class="text-muted mb-0">Dados obtidos da view <strong>vw_relatorio_livros_por_autor</strong></p>
+        </div>
+        <a class="btn btn-primary btn-lg" th:href="@{/relatorios/livros-por-autor/pdf}" target="_blank">
+            <i class="bi bi-file-pdf"></i> Baixar PDF
+        </a>
+    </div>
 
+    <div class="table-responsive">
         <table class="table table-sm table-bordered">
             <thead class="table-light">
             <tr>
@@ -10,22 +23,97 @@
                 <th>Livro</th>
                 <th>Editora</th>
                 <th>Ano</th>
-                <th>Edição</th>
-                <th>Valor (R$)</th>
-                <th>Assuntos</th>
+                <th>Valore (R$)</th>
+                <th>Assunto</th>
+                <th>Autores</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="reg : ${registros}">
                 <td th:text="${reg.autorNome}"></td>
-                <td th:text="${reg.livroTitulo}"></td>
-                <td th:text="${reg.livroEditora}"></td>
-                <td th:text="${reg.livroAnoPublicacao}"></td>
-                <td th:text="${reg.livroEdicao}"></td>
-                <td th:text="${#numbers.formatDecimal(reg.livroValor, 1, 'COMMA', 2, 'POINT')}"></td>
-                <td th:text="${reg.assuntos}"></td>
+                <td class="livros" th:text="${reg.livros}" th:attr="data-raw=${reg.livros}"></td>
+                <td th:text="${reg.editoras}"></td>
+                <td th:text="${reg.anosPublicacao}"></td>
+                <td class="valores" th:text="${reg.valores}" th:attr="data-raw=${reg.valores}"></td>
+                <td class="assuntos" th:text="${reg.assuntos}"></td>
+                <td class="autores" th:text="${reg.todosAutores}" th:attr="data-raw=${reg.todosAutores}"></td>
             </tr>
             </tbody>
         </table>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const formatter = new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            });
+
+            document.querySelectorAll('td.valores').forEach(function (cell) {
+                const raw = cell.getAttribute('data-raw') || '';
+                if (!raw.trim()) {
+                    return;
+                }
+
+                const formatted = raw
+                    .split(';')
+                    .map(function (item) { return item.trim(); })
+                    .filter(function (item) { return item.length > 0; })
+                    .map(function (item) {
+                        const normalized = item.replace(/[^0-9,.-]/g, '').replace(',', '.');
+                        const value = Number.parseFloat(normalized);
+                        if (Number.isNaN(value)) {
+                            return item;
+                        }
+                        return formatter.format(value);
+                    })
+                    .join(' ');
+
+                if (formatted.trim()) {
+                    cell.textContent = formatted;
+                }
+            });
+
+            document.querySelectorAll('td.livros').forEach(function (cell) {
+                const raw = cell.getAttribute('data-raw') || '';
+                if (!raw.trim()) {
+                    return;
+                }
+
+                const formatted = raw
+                    .split(',')
+                    .map(function (item) { return item.trim(); })
+                    .filter(function (item) { return item.length > 0; })
+                    .map(function (item, index, arr) {
+                        return index < arr.length - 1 ? item + ';' : item + ' ';
+                    })
+                    .join('<br>');
+
+                if (formatted.trim()) {
+                    cell.innerHTML = formatted;
+                }
+            });
+
+            document.querySelectorAll('td.autores').forEach(function (cell) {
+                const raw = cell.getAttribute('data-raw') || '';
+                if (!raw.trim()) {
+                    return;
+                }
+
+                const formatted = raw
+                    .split(',')
+                    .map(function (item) { return item.trim(); })
+                    .filter(function (item) { return item.length > 0; })
+                    .map(function (item, index, arr) {
+                        return index < arr.length - 1 ? item + ',' : item + ' ';
+                    })
+                    .join('<br>');
+
+                if (formatted.trim()) {
+                    cell.innerHTML = formatted;
+                }
+            });            
+        });
+    </script>
 </div>
+</body>
+</html>

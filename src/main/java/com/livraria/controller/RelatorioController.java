@@ -1,7 +1,13 @@
 package com.livraria.controller;
 
+import com.livraria.dto.RelatorioPdfDto;
 import com.livraria.service.RelatorioService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,7 +15,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class RelatorioController {
 
-    @Autowired
+    private static final Logger logger = LoggerFactory.getLogger(RelatorioController.class);
+
     private final RelatorioService relatorioService;
 
     public RelatorioController(RelatorioService relatorioService) {
@@ -21,13 +28,23 @@ public class RelatorioController {
         model.addAttribute("registros", relatorioService.gerarRelatorio());
         return "livro/livros-por-autor";
     }
+
+    @GetMapping("/relatorios/livros-por-autor/pdf")
+    public ResponseEntity<byte[]> relatorioLivrosPorAutorPDF() {
+        try {
+            RelatorioPdfDto relatorio = relatorioService.gerarRelatorioPdfCompleto();
+            
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + relatorio.getNomeArquivo() + "\"")
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE)
+                    .header(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate")
+                    .header(HttpHeaders.PRAGMA, "no-cache")
+                    .header(HttpHeaders.EXPIRES, "0")
+                    .contentLength(relatorio.getTamanho())
+                    .body(relatorio.getConteudo());
+        } catch (Exception e) {
+            logger.error("Erro ao processar download de PDF: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }
-
-/*
-Você pode falar algo assim (em termos simples):
-
-    “Para o relatório, criei uma view no PostgreSQL que já retorna os dados agregados de livro, autor e assunto.”
-    “No backend, usei uma projection (RelatorioLivrosPorAutorProjection) para mapear as colunas da view sem criar uma entidade de verdade, porque relatório não é um agregado de domínio, é só leitura.”
-    “Criei um repositório específico (RelatorioLivrosPorAutorRepository) com uma query nativa em cima da view. Assim, não precisei de nenhuma entidade fake, o código fica mais limpo e alinhado com o uso read-only do relatório.”
-
- */

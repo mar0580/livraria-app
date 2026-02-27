@@ -1,7 +1,7 @@
 package com.livraria.controller;
 
 import com.livraria.entity.Assunto;
-import com.livraria.repository.AssuntoRepository;
+import com.livraria.service.AssuntoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,16 +13,15 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/assuntos")
 public class AssuntoController {
 
-    @Autowired
-    private final AssuntoRepository assuntoRepository;
+    private final AssuntoService assuntoService;
 
-    public AssuntoController(AssuntoRepository assuntoRepository) {
-        this.assuntoRepository = assuntoRepository;
+    public AssuntoController(AssuntoService assuntoService) {
+        this.assuntoService = assuntoService;
     }
 
     @GetMapping
     public String listar(Model model) {
-        model.addAttribute("assuntos", assuntoRepository.findAll());
+        model.addAttribute("assuntos", assuntoService.listarTodos());
         return "assunto/lista";
     }
 
@@ -36,21 +35,20 @@ public class AssuntoController {
         if (result.hasErrors()) {
             return "assunto/form";
         }
-        assuntoRepository.save(assunto);
+        assuntoService.salvar(assunto);
         return "redirect:/assuntos";
     }
 
     @GetMapping("/{id}/editar")
     public String editar(@PathVariable Integer id, Model model) {
-        Assunto assunto = assuntoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Assunto inválido: " + id));
+        Assunto assunto = assuntoService.buscarPorId(id);
         model.addAttribute("assunto", assunto);
         return "assunto/form";
     }
 
     @PostMapping("/{id}/excluir")
     public String excluir(@PathVariable Integer id) {
-        assuntoRepository.deleteById(id);
+        assuntoService.excluir(id);
         return "redirect:/assuntos";
     }
 }

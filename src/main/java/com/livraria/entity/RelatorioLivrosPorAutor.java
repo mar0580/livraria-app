@@ -7,13 +7,12 @@ import lombok.Setter;
 import java.math.BigDecimal;
 
 @Entity
-// mapeia diretamente a view
 @Table(name = "vw_relatorio_livros_por_autor")
 @Getter @Setter
 public class RelatorioLivrosPorAutor {
 
     @Id
-    @Column(name = "livro_id") // ou outra coluna única da view
+    @Column(name = "livro_id")
     private Integer livroId;
 
     @Column(name = "autor_id")
@@ -39,4 +38,7 @@ public class RelatorioLivrosPorAutor {
 
     @Column(name = "assuntos")
     private String assuntos;
+
+    @Column(name = "todos_autores")
+    private String todosAutores;
 }
