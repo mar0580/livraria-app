@@ -55,11 +55,11 @@ public class RelatorioServiceImpl implements RelatorioService {
         try {
             logger.info("Iniciando geração de PDF do relatório...");
             
-            // Carrega o arquivo .jrxml
+            //Carrega o arquivo .jrxml
             Resource jrxmlResource = resourceLoader.getResource("classpath:reports/livros_por_autor.jrxml");
             InputStream jrxmlInputStream = jrxmlResource.getInputStream();
 
-            // Compila o relatório
+            // ompila o relatório
             JasperReport jasperReport = JasperCompileManager.compileReport(jrxmlInputStream);
             logger.info("Relatório compilado com sucesso");
             
