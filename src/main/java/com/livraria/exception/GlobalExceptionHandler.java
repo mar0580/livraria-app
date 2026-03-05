@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.Locale;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -28,20 +29,20 @@ public class GlobalExceptionHandler {
     public String handleDataIntegrity(DataIntegrityViolationException ex, Model model) {
         logger.error("Erro de integridade de dados", ex);
         String mensagem = "Operação não permitida. Verifique se há vínculos com outros registros.";
-        // detecta FK para tabela de junção livro_autor e oferece explicação mais amigável
+        // detecta FK para tabela de junção livro_autor/livro_assunto antes de validar duplicidade
         Throwable root = ex.getRootCause();
         if (root != null && root.getMessage() != null) {
-            String rootMessage = root.getMessage();
-            if (rootMessage.contains("uq_autor_nome_ci") || rootMessage.contains("autor_nome") || rootMessage.contains("autor")) {
-                mensagem = "Autor já cadastrado. Informe um nome diferente.";
-            } else if (rootMessage.contains("uq_assunto_descricao_ci") || rootMessage.contains("assunto_descricao") || rootMessage.contains("assunto")) {
-                mensagem = "Assunto já cadastrado. Informe uma descrição diferente.";
-            } else if (rootMessage.contains("livro_autor")) {
+            String rootMessage = root.getMessage().toLowerCase(Locale.ROOT);
+            if (rootMessage.contains("livro_autor")) {
                 mensagem = "Não é possível excluir o autor porque existem livros vinculados a ele. " +
                            "Desvincule ou exclua os registros relacionados antes.";
             } else if (rootMessage.contains("livro_assunto")) {
                 mensagem = "Não é possível excluir o assunto porque existem livros vinculados a ele. " +
                            "Desvincule ou exclua os registros relacionados antes.";
+            } else if (rootMessage.contains("uq_autor_nome_ci") || rootMessage.contains("autor_nome") || rootMessage.contains("autor")) {
+                mensagem = "Autor já cadastrado. Informe um nome diferente.";
+            } else if (rootMessage.contains("uq_assunto_descricao_ci") || rootMessage.contains("assunto_descricao") || rootMessage.contains("assunto")) {
+                mensagem = "Assunto já cadastrado. Informe uma descrição diferente.";
             }
         }
         model.addAttribute("errorMessage", mensagem);
